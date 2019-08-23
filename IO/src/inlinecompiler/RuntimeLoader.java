@@ -13,15 +13,15 @@ import java.nio.file.StandardCopyOption;
 import java.util.Properties;
 
 public class RuntimeLoader {
-	
+	@SuppressWarnings("all")
 	public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, InterruptedException {
 		Process process = null;
 		try {
 			System.out.println(System.getProperty("user.dir"));
-			process = Runtime.getRuntime().exec("javac -d "+System.getProperty("user.dir")+"/bin"+" C:/upload/Kulunga.java");
+			process = Runtime.getRuntime().exec("javac "+"-cp "+System.getProperty("user.dir")+"/bin"
+																			+" -d "+System.getProperty("user.dir")+"/bin "+"C:/upload/Child.java");
 			
-		} catch (Exception e) {
-			e.printStackTrace();
+		
 			BufferedReader buff  = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 			String mesg = "";
 			while((mesg = buff.readLine()) != null) {
@@ -30,10 +30,11 @@ public class RuntimeLoader {
 		}finally {
 			process.waitFor();
 			
-			Class<?> klass = Class.forName("classloading.Kulunga");
+			Class<? extends Parent> klass = Class.forName("classloading.Child");
 			System.out.println(klass.getSuperclass());
 			Object obj = klass.newInstance();
-		
+			Parent p = (Parent)obj;
+			System.out.println(p);
 		}
 
 	}
