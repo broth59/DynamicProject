@@ -19,7 +19,7 @@ public class RuntimeLoader {
 		try {
 			System.out.println(System.getProperty("user.dir"));
 			process = Runtime.getRuntime().exec("javac "+"-cp "+System.getProperty("user.dir")+"/bin"
-																			+" -d "+System.getProperty("user.dir")+"/bin "+"C:/upload/Child.java");
+												+" -d "+System.getProperty("user.dir")+"/bin "+"C:/upload/Child.java");
 			
 		
 			BufferedReader buff  = new BufferedReader(new InputStreamReader(process.getErrorStream()));
@@ -30,7 +30,7 @@ public class RuntimeLoader {
 		}finally {
 			process.waitFor();
 			
-			Class<? extends Parent> klass = Class.forName("classloading.Child");
+			Class<?> klass = Class.forName("classloading.Child");
 			System.out.println(klass.getSuperclass());
 			Object obj = klass.newInstance();
 			Parent p = (Parent)obj;

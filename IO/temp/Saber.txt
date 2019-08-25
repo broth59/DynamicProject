@@ -1,0 +1,12 @@
+public class Saber implements reflection.method.Donow,reflection.method.AbstractProxer{
+  public reflection.method.Donow wrapped;
+	public void printM(){
+		wrapped.printM();
+	}
+	public void printT(){
+		wrapped.printT();
+	}
+	public void setWrapped(Object obj){
+		this.wrapped = (reflection.method.Donow)obj;
+	}
+}
