@@ -7,6 +7,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -47,7 +48,6 @@ public class ProxyProvider {
 	}
 
 	private static Object cheat() throws Exception {
-		System.out.println(target_clazz.getName());
 
 		// 스태틱 멤버 셋팅
 		ProxyProvider.set(target, outer);
@@ -80,8 +80,7 @@ public class ProxyProvider {
 		line("  " + "private " + "reflection.method.SidefunctionEmplementer" + " outer;");
 
 		//메소드 문자열 처리 패턴
-		String name_regex = "\\s[a-zA-z]{1,30}[.]\\S{0,100}[(]";
-		Pattern name_pattern = Pattern.compile(name_regex);
+		Pattern name_pattern = Pattern.compile( "\\s[a-zA-z]{1,30}[.]\\S{0,100}[(]");
 		Pattern without_pattern = Pattern.compile("[a-zA-z]{1,50}[(]");
 		Pattern param_pattern = Pattern.compile("[(]\\S{1,100}[)]");
 
@@ -114,7 +113,6 @@ public class ProxyProvider {
 				params += param.getName() + ",";
 				params_class += param.getType().getName() + ".class,";
 				param_statement += param.getType().getName()+" "+param.getName()+",";
-				System.out.println(param_statement);
 			}
 			if(param_count!=0) {
 				params = params.substring(0, params.length()-1);
@@ -186,30 +184,32 @@ public class ProxyProvider {
 
 		// 컴파일
 		String context = System.getProperty("user.dir");
+		System.out.println(context);
 		Process process = null;
 		try {
-
 			process = Runtime.getRuntime().exec("javac -cp " + context + "/bin " + "-d " + context + "/bin " + context
-					+ "/src/" + prop + "/Saber.java");
-
+					+ "/src/" + prop + "/Saber.java");		
 		} finally {
 			process.waitFor();
-
-			BufferedReader cmd_input = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-			String readed_line = null;
-			while ((readed_line = cmd_input.readLine()) != null) {
-				System.out.println("cmd: " + readed_line);
+			InputStream error_input =  process.getErrorStream();
+			if(error_input.available()!=0) {				
+				BufferedReader cmd_input = new BufferedReader(new InputStreamReader(error_input));
+				String readed_line = null;
+				while ((readed_line = cmd_input.readLine()) != null) {
+					System.out.println("cmd: " + readed_line);
+				}
 			}
 		}
-
+		
 		// 객체생성
+		
 		Class<?> klazz = Class.forName(prop + ".Saber");
 		wrapped = klazz.getDeclaredConstructor(new Class<?>[] {}).newInstance(new Object[] {});
 		// target 셋팅
 		AbstractProxer proxer = (AbstractProxer) wrapped;
 		proxer.setWrapped(target);
 		proxer.setOuter(outer);
-
+		
 		// 폴더 삭제
 		temp_bin.deleteOnExit();
 		temp_src.deleteOnExit();
